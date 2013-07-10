@@ -21,6 +21,7 @@ class User extends CI_Controller {
 
 	public function __construct() {
 		parent::__construct();
+                $this->load->model('user_model');
                 
 	}
 	
@@ -28,9 +29,13 @@ class User extends CI_Controller {
 	{
             echo var_dump($this->input->get());
             echo 'yaqqdwq';
-            
-            
 	}
+        
+        public function add(){
+            echo $this->user_model->add($this->input->post());
+        }
+        
+        
 
 }
 
