@@ -1,14 +1,14 @@
-/**
- * All your custom CSS should go into this file
-*/
-
-@font-face {
+/*@font-face {
     font-family: 'DK Crayon Crumble';
-    src: url('../DK Crayon Crumble.eot'); /* IE9 Compat Modes */
-    src: url('../DK Crayon Crumble.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-        /*url('../DK Crayon Crumble.woff') format('woff'),  Modern Browsers */
-        url('../font/DK Crayon Crumble.ttf')  format('truetype') /* Safari, Android, iOS */
-        /*url('../DK Crayon Crumble.svg#svgFontName') format('svg');  Legacy iOS */
+    src: url('../DK Crayon Crumble.eot');  IE9 Compat Modes 
+    src: url('../DK Crayon Crumble.eot?#iefix') format('embedded-opentype'),  IE6-IE8 
+        url('../DK Crayon Crumble.woff') format('woff'),  Modern Browsers 
+        url('../font/DK Crayon Crumble.ttf')  format('truetype')  Safari, Android, iOS 
+        url('../DK Crayon Crumble.svg#svgFontName') format('svg');  Legacy iOS 
+}*/
+
+*{
+    font-family: 'DK Crayon Crumble', Arial, Helvetica, sans-serif;
 }
 
 ::-moz-selection {
@@ -35,7 +35,6 @@ body {
 #chalkboard{
     background: url('../img/blackboard2.jpg') no-repeat top center;
     color: #CCC;
-    font-family: 'DK Crayon Crumble';    
     min-height: 600px;    
     text-shadow: 1px 1px 5px #000;
 }
@@ -47,12 +46,13 @@ body {
 #chalkboard input{
     background-color: transparent;
     color: #CCC;
-    font-family: 'DK Crayon Crumble';
+
 }
 
-#btnRegister{
-    font-family: 'DK Crayon Crumble';
-    font-size: 32px;
+#btnRegister{    
+    font-family: 'DK Crayon Crumble', Arial, Helvetica, sans-serif;
+    font-size: 60px;
+    height: 82px;
     padding: 30px 40px 30px 40px;  
     text-shadow: 1px 1px 5px #000;
     width: 380px;    
@@ -65,27 +65,53 @@ body {
     margin-top: 40px;
 }
 
-.input-large[class=input-large] {
-    width: 340px;
+#chalkboard input{   
+    font-family: 'DK Crayon Crumble', Arial, Helvetica, sans-serif;
+    font-size: 32px;
     height: 44px;
     line-height: normal;
     padding: 11px 19px;
-    font-size: 32px;
 }
 
-.input-short[class=input-short] {
+#chalkboard input[class="input-large"], #chalkboard input[class="input-large valid"], #chalkboard input[class="input-large error"] {
+    width: 340px;    
+}
+
+#chalkboard input[class="input-short"], #chalkboard input[class="input-short valid"], #chalkboard input[class="input-short error"]  {
     width: 147px;
-    height: 44px;
-    line-height: normal;
-    padding: 11px 19px;
-    font-size: 32px;
 }
 
-
-.input-narrow.input-large[class=input-large]{
-    width: 170px;    
+label.error{
+    /*background-color: #f2dede;*/  
+    background-color:rgba(0,0,0,0.5);
+    border-color: #eed3d7; 
+    /*color: #b94a48;*/ 
+    font-size: 24px; 
+    margin: -70px 0 0 395px;
+    padding: 7px;
+    position: absolute;
+    width: 200px; 
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5); 
+    -webkit-border-radius: 4px; -moz-border-radius: 4px; border-radius: 4px; 
 }
 
+label.error:after, label.error:before {
+    right: 100%;
+    border: solid transparent;
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+}
+
+label.error:before {
+    border-color: rgba(194, 225, 245, 0);
+    border-right-color: rgba(0,0,0,0.5);
+    border-width: 8px;
+    top: 50%;
+    margin-top: -8px;
+}
 
 #reminders {
     margin-top: 145px;
@@ -109,8 +135,7 @@ input[type=text]:focus{
     box-shadow: 0px 0px 6px #dfdfdf;
 }
 
-
-#logos{
-    margin-bottom: 0px;
-    position:relative;
+#confirmText{
+    line-height: 0.90em;
+    width: 100%;
 }

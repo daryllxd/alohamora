@@ -27,8 +27,7 @@ class User extends CI_Controller {
 	
 	public function index()
 	{
-            echo var_dump($this->input->get());
-            echo 'yaqqdwq';
+            echo $this->user_model->get();
 	}
         
         public function add(){

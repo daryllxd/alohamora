@@ -40,6 +40,7 @@
 
 $route['default_controller'] = "frontpage";
 $route['404_override'] = '';
+$route['ajax/:any'] = 'ajax/index/$1';
 
 
 /* End of file routes.php */

@@ -90,7 +90,8 @@ class Database_model extends CI_Model {
             ),
             'time_logged_in TIMESTAMP DEFAULT NOW()',
             'time_logged_out' => array(
-                'type' => 'DATETIME'
+                'type' => 'DATETIME',
+                'null' => TRUE
             )
         ));
 
