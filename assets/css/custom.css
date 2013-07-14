@@ -49,7 +49,7 @@ body {
 
 }
 
-#btnRegister{    
+#chalkboard button.btn-large{    
     font-family: 'DK Crayon Crumble', Arial, Helvetica, sans-serif;
     font-size: 60px;
     height: 82px;
@@ -138,4 +138,17 @@ input[type=text]:focus{
 #confirmText{
     line-height: 0.90em;
     width: 100%;
+}
+
+.typeahead{
+    background-color: #ccc;
+    border-color: oldlace;
+}
+
+.typeahead li {
+    
+    text-shadow: none;
+    font-size: 36px;
+    margin-bottom: 5px;    
+    width: 380px;
 }

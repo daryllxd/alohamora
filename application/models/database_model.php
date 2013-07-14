@@ -27,8 +27,92 @@ class Database_model extends CI_Model {
         $this->dbforge->create_database(DATABASE_NAME);
         $this->load->database('test', TRUE);
 
+
+        $this->create_cities_table();
+        $this->seed_cities_table();
+        $this->create_schools_table();
         $this->create_users_table();
         $this->create_transactions_table();
+
+        if (ENVIRONMENT == 'development') {
+            $this->seed_schools_table();
+        }
+    }
+
+    /**
+     * Manila only
+     */
+    private function create_cities_table() {
+        $this->dbforge->add_field(array(
+            'city_id' => array(
+                'type' => 'INT',
+                'unsigned' => TRUE,
+                'auto_increment' => TRUE
+            ),
+            'city_name' => array(
+                'type' => 'VARCHAR',
+                'constraint' => '100'
+            ),
+            "stamp_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
+            'stamp_updated TIMESTAMP '
+        ));
+
+        $this->dbforge->add_key('city_id', TRUE);
+        $this->dbforge->create_table('cities');
+    }
+
+    private function seed_cities_table() {
+        $cities = array('Caloocan', 'Las Piñas', 'Makati', 'Malabon',
+            'Mandaluyong', 'Manila', 'Marikina', 'Muntinlupa', 'Navotas',
+            'Parañaque', 'Pasay', 'Pasig', 'Pateros', 'Quezon City', 'San Juan',
+            'Taguig', 'Valenzuela');
+        foreach ($cities as $key) {
+            $this->db->set('city_name', $key);
+            $this->db->insert('cities');
+        }
+    }
+
+    private function create_schools_table() {
+        $this->dbforge->add_field(array(
+            'school_id' => array(
+                'type' => 'INT',
+                'unsigned' => TRUE,
+                'auto_increment' => TRUE
+            ),
+            'city_id' => array(
+                'type' => 'INT',
+                'unsigned' => TRUE,
+            ),
+            'school_name' => array(
+                'type' => 'VARCHAR',
+                'constraint' => '100'
+            ),
+            "stamp_created TIMESTAMP DEFAULT '0000-00-00 00:00:00'",
+            'stamp_updated TIMESTAMP DEFAULT NOW() ON UPDATE NOW()'
+        ));
+
+        $this->dbforge->add_key('school_id', TRUE);
+        $this->dbforge->create_table('schools');
+
+        $this->db->query('
+            ALTER TABLE schools
+            ADD CONSTRAINT fk_Schools_Cities
+            FOREIGN KEY (city_id)
+            REFERENCES cities(city_id)
+            ');
+    }
+
+    private function seed_schools_table() {
+        $cities = array('University of the East High School - Caloocan' => '1',
+            'Las Piñas School' => '2',
+            'University of the East High School - Manila' => '6',
+            'Phiippine Science High School' => '14'
+        );
+        foreach ($cities as $key => $value) {
+            $this->db->set('school_name', $key);
+            $this->db->set('city_id', $value);
+            $this->db->insert('schools');
+        }
     }
 
     private function create_users_table() {
@@ -37,6 +121,10 @@ class Database_model extends CI_Model {
                 'type' => 'INT',
                 'unsigned' => TRUE,
                 'auto_increment' => TRUE
+            ),
+            'school_id' => array(
+                'type' => 'INT',
+                'unsigned' => TRUE
             ),
             'first_name' => array(
                 'type' => 'VARCHAR',
@@ -56,21 +144,22 @@ class Database_model extends CI_Model {
                 'constraint' => '100',
                 'null' => TRUE
             ),
-            'school' => array(
-                'type' => 'VARCHAR',
-                'constraint' => '100'
-            ),
             'location' => array(
                 'type' => 'VARCHAR',
                 'constraint' => '100'
             ),
-            "stamp_created TIMESTAMP DEFAULT '0000-00-00 00:00:00'",
-            'stamp_updated TIMESTAMP DEFAULT NOW() ON UPDATE NOW()'
+            
+            'stamp_created TIMESTAMP DEFAULT NOW() ON UPDATE NOW()',
+            "stamp_updated TIMESTAMP DEFAULT '0000-00-00 00:00:00'"
         ));
 
         $this->dbforge->add_key('user_id', TRUE);
-
         $this->dbforge->create_table('users');
+        $this->db->query('
+            ALTER TABLE transactions
+            ADD CONSTRAINT unique_participant_per_day 
+            UNIQUE (first_name, last_name);
+            ');
     }
 
     private function create_transactions_table() {
@@ -94,10 +183,19 @@ class Database_model extends CI_Model {
                 'null' => TRUE
             )
         ));
-
         $this->dbforge->add_key('transaction_id', TRUE);
-
         $this->dbforge->create_table('transactions');
+        $this->db->query('
+            ALTER TABLE transactions
+            ADD CONSTRAINT fk_Users_Transactions
+            FOREIGN KEY (user_id)
+            REFERENCES users(user_id)
+            ');
+        $this->db->query('
+            ALTER TABLE transactions
+            ADD CONSTRAINT unique_participant_per_day 
+            UNIQUE (transaction_date, user_id);
+            ');
     }
 
     public function destroy_database() {

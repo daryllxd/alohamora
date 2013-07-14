@@ -33,30 +33,69 @@ class User_model extends CI_Model {
         return json_encode($rows, 1);
     }
 
-    public function add($var) {
+    public function add($user) {
+        if ($this->isOldUser($user['user_id'])) {
+            $this->db->trans_start();
+            
+            $this->edit($user);
+
+            $transaction = array(
+                'user_id' => $user['user_id'],
+                'transaction_date' => date('Y-m-d H:i:s')
+            );
+
+            $this->db->insert('transactions', $transaction);
+            $this->db->trans_complete();
+
+            return $this->isOldUser($user['user_id']);
+        } else {
+            $this->db->trans_start();
+
+            $user = array(
+                'first_name' => $user['first_name'],
+                'last_name' => $user['last_name'],
+                'cellphone_number' => $user['cellphone_number'],
+                'email_address' => $user['email_address'],
+                'school_id' => $user['school_id'],
+                'location' => 'My Name'
+            );
+
+            $this->db->insert('users', $user);
+            $insert_id = $this->db->insert_id();
+            
+            $transaction = array(
+                'user_id' => $insert_id,
+                'transaction_date' => date('Y-m-d H:i:s')
+            );
+
+            $this->db->insert('transactions', $transaction);
+            $this->db->trans_complete();
+
+            return 'Successfully inserted!';
+        }
+    }
+
+    public function edit($user) {
         $this->db->trans_start();
 
-        $user = array(
-            'first_name' => $var['first_name'],
-            'last_name' => $var['last_name'],
-            'cellphone_number' => $var['cellphone_number'],
-            'email_address' => $var['email_address'],
-            'school' => $var['school'],
-            'location' => 'My Name'
+        $updated_user = array(
+            'first_name' => $user['first_name'],
+            'last_name' => $user['last_name'],
+            'cellphone_number' => $user['cellphone_number'],
+            'school_id' => $user['school_id'],
+            'email_address' => $user['email_address']
         );
 
-        $this->db->insert('users', $user);
-        $insert_id = $this->db->insert_id();
-        $transaction = array(
-            'user_id' => $insert_id,
-            'transaction_date' => date('Y-m-d H:i:s'),
-            'time_logged_in' => $var['cellphone_number']
-        );
+        $this->db->where('user_id', $user['user_id']);
 
-        $this->db->insert('transactions', $transaction);
+        $this->db->update('users', $updated_user);
         $this->db->trans_complete();
 
-        return 'Successfully inserted!';
+        return $user['user_id'];
+    }
+
+    private function isOldUser($user_id = 0) {
+        return $this->db->get_where('users', array('user_id' => $user_id))->num_rows() > 0;
     }
 
 }

@@ -16,7 +16,10 @@
                    id="txtCellphone" class="input-large" maxlength="11"/>
         </div>
         <div class="controls">
-            <input type="text" name="txtSchool" class="input-large" placeholder="School" id="txtSchool"/>
+
+            <!--<input class="typeahead tt-query" type="text" dir="auto">-->
+
+            <input type="text" name="txtSchool" class="input-large" id="txtSchool" placeholder="School" autocomplete="off"/>
         </div>
         <button id="btnRegister" class="btn btn-large btn-inverse" type="button">
             Present!

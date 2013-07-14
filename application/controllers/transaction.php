@@ -1,7 +1,7 @@
 <?php
 
 /**
- * user - [Add a short description of what this file does]
+ * transaction
  *
  * [Add a long description of the file (1 sentence) and then delete my example]
  * Example: A PHP file template created to standardize code.
@@ -16,20 +16,20 @@
 if (!defined('BASEPATH'))
     exit('No direct script access allowed');
 
-class User extends MY_Controller {
+class Transaction extends MY_Controller {
 
     public function __construct() {
         parent::__construct();
     }
 
     public function index() {
-        echo $this->user_model->get();
+        echo $this->transaction_model->get();
     }
 
-    public function add() {
-        echo $this->user_model->add($this->input->post());
+    public function logout() {        
+        echo $this->transaction_model->logout($this->input->post());
     }
 
 }
 
-/* End of file user.php */
+/* End of file transaction.php */

@@ -7,7 +7,7 @@
         <input type="text" name="txtFullName" placeholder="Full Name (If none leave blank)"
                id="txtFullName" class="input-large" data-toggle="tooltip" data-placement="right" title="" data-original-title="juan.delacruz@ue.edu.ph"/>
 
-        <button id="btnRegister" class="btn btn-large btn-inverse" type="button">
+        <button id="btnLogout" class="btn btn-large btn-inverse" type="button">
             Bye!
         </button>
     </form>

@@ -18,6 +18,15 @@ $.validator.addMethod(
     "Please check your input."
     );
         
+$.validator.addMethod(
+    'in_array',
+    
+    function(value, element, array) {
+        return  (array.indexOf(value) > -1);
+    },
+    "Please check your input."
+    );
+        
 $.fn.shake = function(intShakes, intDistance, intDuration) {
     this.each(function() {
         $(this).css("position","relative"); 
@@ -36,45 +45,30 @@ $.fn.shake = function(intShakes, intDistance, intDuration) {
     return this;
 };
         
-        
 
 var Alohamora = {
     baseURL: 'http://localhost/alohamora/',
-    //Production baseURL: 'http://192.168.1.10/rigel/',    
-    participants : [],
-    participant_list : [],
-    schools : [],
+    //Production baseURL: 'http://192.168.1.10/rigel/',   
+    participants : {},
+    schools : {},
     textboxes: $('#txtFirstName, #txtLastName, #txtEmail, #txtCellphone, #txtSchool'),
     loginText : '',
+    logoutText : '',
     confirmText : '',
     init : function(){
         UI.prepare();
         AJAX.getParticipants();
+        AJAX.getSchools();
+        
         Alohamora.loginText = AJAX.getChalkboard('login', UI.loadLogin);
-        Alohamora.confirmText = AJAX.getChalkboard('confirm', UI.loadConfirm);        
+        Alohamora.confirmText = AJAX.getChalkboard('confirm', UI.loadConfirm);   
+        Alohamora.logoutText = AJAX.getChalkboard('logout', UI.loadLogout);
         
         $('#showLogin').on('click', function(){
             UI.loadLogin();
-        //            AJAX.getChalkboard('login', UI.loadLogin)
-        });
-               
-        
+        });        
         $('#showLogout').on('click', function(){
-            $.ajax({
-                url: 'http://localhost/alohamora/ajax/logout',
-                method: 'POST',
-                data : {
-                    intent: 'add'
-                },
-                success : function (data) {
-                    
-                    $('#chalkboard').children().fadeOut(1000, function(){
-                        $('#chalkboard').empty().append(data).fadeIn(1000);
-                    });
-                    
-                    
-                }
-            })
+            UI.loadLogout();            
         });       
     },
     prepareUI: function(){
@@ -82,31 +76,13 @@ var Alohamora = {
         $('#registrationSplash').sdVertAlign($('#registrationBackground'), 'm');
         $('#logoutSplash').sdVertAlign($('#logoutBackground'), 'm');
         $('#logoutCenterThis').sdVertAlign($('#logoutSplash'), 'm');
-        $('#txtSchool').autocomplete({
-            source:Alohamora.schools
-        });        
+              
         $('#txtFullNameLogout').autocomplete({
-            source:Alohamora.participant_list,
+            source: Alohamora.participant_list,
             change: function (event, ui) {
                 if (!ui.item) {
                     $(this).val('');
                 }
-            }
-        });
-        
-        $('#txtFullName').autocomplete({
-            source: Alohamora.participant_list,
-            select: function(event, ui){
-                $('#txtFullName').val(ui.item);                
-                var person_found = _.findWhere(Alohamora.participants, {
-                    full_name: ui.item.value
-                });
-                if(person_found){                
-                    $('#txtSchool').val(person_found.school);
-                    $('#txtCellphone').val(person_found.cellphone_number);
-                    $('#txtEmail').val(person_found.email);
-                };
-            //                Alohamora.events.findOnBlur();
             }
         });
     }
@@ -120,12 +96,43 @@ var UI = {
             $('#chalkboard').center();
         });
     },    
+    loadConfirm : function(){
+        $('#chalkboard').children().fadeOut(1000, function(){
+            $('#chalkboard').empty().append(Alohamora.confirmText).fadeIn(1000);   
+            $('#confirmText').center();
+        });
+        
+    },
     loadLogin: function(data){                        
         $('#chalkboard').children().fadeOut(1000, function(){
             $('#chalkboard').empty().append(Alohamora.loginText).fadeIn(1000);            
-            Alohamora.Validations.validateRegistration();
+            Alohamora.Validations.validateRegistration();            
+            
+            $('#txtSchool').typeahead({
+                source: _.pluck(Alohamora.schools, 'school_name'),
+                items: 5               
+            });
+            
+            $('#txtFirstName').typeahead({
+                source: _.uniq(_.pluck(Alohamora.participants, 'first_name'))
+            });
+            
+            $('#txtLastName').typeahead({
+                source: _.uniq(_.pluck(Alohamora.participants, 'last_name'))
+            });
+            
+            $('#chalkboard').off('change', '#txtLastName, #txtFirstName')
+            .on('change', '#txtLastName, #txtFirstName',function(){
+                var name = $('#txtFirstName').val() + " " + $('#txtLastName').val();
+                if (name in Alohamora.participants){
+                    $('#txtSchool').val(_.find(Alohamora.schools, {
+                        school_id : Alohamora.participants[name].school_id
+                    }).school_name);
+                    $('#txtEmail').val(Alohamora.participants[name].email_address);
+                    $('#txtCellphone').val(Alohamora.participants[name].cellphone_number);            
+                }
+            });
         });
-        
         $('#chalkboard').off('click', '#btnRegister').on('click', '#btnRegister',
             function(){
                 if ($('#registration-form').valid()){
@@ -134,32 +141,24 @@ var UI = {
                     $('#btnRegister').shake(2,10,150);
                 }            
             });
-    },
-    loadConfirm : function(){
+    },    
+    loadLogout: function(){
         $('#chalkboard').children().fadeOut(1000, function(){
-            $('#chalkboard').empty().append(Alohamora.confirmText).fadeIn(1000);   
-            $('#confirmText').center();
+            $('#chalkboard').empty().append(Alohamora.logoutText).fadeIn(1000);            
+            Alohamora.Validations.validateLogout();        
+            $('#txtFullName').typeahead({
+                source: _.keys(Alohamora.participants)
+            });
         });
-        
-        
-        
-        
-    },
-    showConfirmer: function(){
-        $('#confirmReg').fadeIn(500);
-                        
-        setTimeout(function(){
-            $('#confirmReg').fadeOut(500);
-        }, 1500)
-    },
-    showLogout: function(){
-        $('#confirmOut').fadeIn(500);
-                        
-        setTimeout(function(){
-            $('#confirmOut').fadeOut(500);
-        }, 1500)
-    }
-    
+        $('#chalkboard').off('click', '#btnLogout').on('click', '#btnLogout',
+            function(){
+                if ($('#logout-form').valid()){
+                    AJAX.logout();
+                }else{
+                    $('#btnLogout').shake(2,10,150);
+                }            
+            });
+    }    
 }
 
 var AJAX = {
@@ -196,110 +195,123 @@ var AJAX = {
         $.getJSON(Alohamora.baseURL + 'user/', function(data){
             var count = 0;            
             while(count < data.length){                
-                Alohamora.participant_list[count] = data[count].first_name + " " + data[count].last_name;
-                Alohamora.participants[count] = data[count];
-                Alohamora.participants[count].full_name = data[count].first_name + " " + data[count].last_name;
-                Alohamora.schools[count] = data[count].school;
+                var context = data[count];
+                var full_name = context.first_name + " " + context.last_name;
+                
+                Alohamora.participants[full_name] = context;
+                Alohamora.participants[full_name].full_name = full_name;
+                
+                count++;
+            }
+            
+        });
+    },
+    getSchools: function(){
+        $.getJSON(Alohamora.baseURL + 'school/', function(data){
+            var count = 0;            
+            while(count < data.length){     
+                var context = data[count];
+                Alohamora.schools[data[count].school_name] = context;
                 count++;
             }
         });
     },
-    register : function(){
+    register : function(){        
         $.ajax({
             url: Alohamora.baseURL + 'user/add',
             method: 'POST',
-            data : {
-                first_name: $('#txtFirstName').val(),
-                last_name: $('#txtLastName').val(),
-                email_address: $('#txtEmail').val(),
+            data : {                
+                user_id : Alohamora.Validations.findUser($('#txtFirstName').val() + ' ' + $('#txtLastName').val()),
+                first_name: Alohamora.Validations.sanitizeNames($('#txtFirstName').val()),
+                last_name: Alohamora.Validations.sanitizeNames($('#txtLastName').val()),
+                email_address: $('#txtEmail').val().toLowerCase(),
                 cellphone_number: $('#txtCellphone').val(),
-                school: $('#txtSchool').val()                                        
+                school_id: Alohamora.Validations.findSchool()
             },
-            success : function (data) {
-                $('#txtFirstName, #txtLastName, #txtEmail, #txtCellphone, #txtSchool').val('');     
-                UI.loadConfirm(data);                
+            success : function (data) {                                
+                $('#txtFirstName, #txtLastName, #txtEmail, #txtCellphone, #txtSchool').val('');  
+                
+                alert(data);
+                
+                UI.loadConfirm();                
                 setTimeout(function(){
                     UI.loadLogin();
-                }, 3000)
+                }, 2000)
             }
         })
+               
         
-        
-        
-        
-    //        var person_found = _.findWhere(Alohamora.participants, {
-    //            full_name: $('#txtFullName').val()
-    //        });
-    //        
-    //        if(person_found){
-    //            //            returning
-    //            console.log(person_found);
-    //            $.ajax({
-    //                url: Alohamora.baseURL + 'scripts/login.php',
-    //                data : {                    
-    //                    email: Alohamora.Utilities.cleanNoneValues($('#txtEmail').val()),
-    //                    cellphone: Alohamora.Utilities.cleanNoneValues($('#txtCellphone').val()),
-    //                    school: $('#txtSchool').val(),
-    //                    user_number: person_found.user_number
-    //                },
-    //                success : function (data) {
-    //                    //                    update the internal structure
-    //                    console.log(data);
-    //                    UI.showConfirmer();
-    //                    
-    //                },
-    //                complete : function(){                
-    //                }
-    //            })
-    //        }else{
-    //            //            insert
-    //            $.ajax({
-    //                url: Alohamora.baseURL + 'scripts/login.php',
-    //                data : {
-    //                    //                            todo fix data insertion
-    //                    firstName: $('#txtFullName').val().split(' ').slice(0, -1).join(' '),
-    //                    lastName: $('#txtFullName').val().split(' ').slice(-1).join(' '),
-    //                    email: Alohamora.Utilities.cleanNoneValues($('#txtEmail').val()),
-    //                    cellphone: Alohamora.Utilities.cleanNoneValues($('#txtCellphone').val()),
-    //                    school: $('#txtSchool').val()
-    //                        
-    //                },
-    //                success : function (data) {
-    //                    console.log(data);
-    //                    UI.showConfirmer();                
-    //                },
-    //                complete : function(){                
-    //                }
-    //            })
-    //        }
     },
     logout: function(){
-        var person_found = _.findWhere(Alohamora.participants, {
-            full_name: $('#txtFullNameLogout').val()
-        });        
-        if(person_found){
-            console.log(person_found);
-            $.ajax({
-                url: Alohamora.baseURL + 'scripts/logout.php',
-                data : {
-                    user_number: person_found.user_number
-                },
-                success : function (data) {
-                    //                    update the internal structure
-                    UI.showLogout();
-                },
-                complete : function(){                
-                }
-            })
-        }
+        $.ajax({
+            url: Alohamora.baseURL + 'transaction/logout',
+            method: 'POST',
+            data : {                
+                user_id : Alohamora.Validations.findUser($('#txtFullName').val())
+            },
+            success : function (data) {                                
+                $('#txtFullname').val('');  
+                
+                console.log(data);
+                
+                UI.loadConfirm();                
+                setTimeout(function(){
+                    UI.loadLogout();
+                }, 2000)
+            },
+            error : function (xhr,err){
+                alert(Alohamora.baseURL + 'transaction/logout');
+                alert("readyState: "+xhr.readyState+"\nstatus: "+xhr.status);
+                console.log("responseText: "+xhr.responseText);
+            }
+        })
         
     }
 };
 
 Alohamora.Validations = {
+    findSchool : function(){
+        var ret = _.findWhere(Alohamora.schools, {
+            school_name :($('#txtSchool').val())
+        });  
+                
+        if (_.isUndefined(ret)){
+            return $('#txtSchool').val();
+        }else{
+            return ret.school_id;
+        }       
+        
+    },
+    findUser : function(full_name){        
+        if (full_name in Alohamora.participants){
+            return Alohamora.participants[full_name].user_id;                   
+        }else{
+            return -1;
+        }
+    },
+    sanitizeNames : function(str){
+        return str.replace(/\w\S*/g, function(txt){
+            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        });
+    },    
+    validateLogout : function(){
+        $('#logout-form').validate({
+            onfocusout: false,
+            rules: {
+                txtFullName: {
+                    in_array: _.keys(Alohamora.participants)
+                }
+            }
+            , 
+            messages : {
+                txtFullName : {
+                    in_array: "Not a participant. Did you log in?"
+                }
+            }             
+        });
+    },
     validateRegistration: function(){
         $('#registration-form').validate({
-            debug: true,
             rules: {
                 txtFirstName: "required",
                 txtLastName: {
