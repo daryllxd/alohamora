@@ -1,7 +1,7 @@
 <?php
 
 /**
- * ajax - Used for AJAX transactions
+ * admin - For admin functions.
  *
  * [Add a long description of the file (1 sentence) and then delete my example]
  * Example: A PHP file template created to standardize code.
@@ -16,20 +16,22 @@
 if (!defined('BASEPATH'))
     exit('No direct script access allowed');
 
-class Ajax extends CI_Controller {
+class Admin extends MY_Controller {
+
+    private $data;
 
     public function __construct() {
         parent::__construct();
+
+        $this->data['js'] = array('base', 'admin');
     }
 
     public function index() {
-        if (file_exists(APPPATH . 'views/' . $this->uri->segment(2) . '.php')) {
-            $this->load->view($this->uri->segment(2));
-        } else {
-            $this->load->view('error');
-        }
+        $this->load->view('include/header');
+        $this->load->view('admin');
+        $this->load->view('include/footer', $this->data);
     }
 
 }
 
-/* End of file ajax.php */
+/* End of file admin.php */

@@ -1,76 +1,44 @@
 "use strict";
 
-$.fn.center = function () {
-    this.css("position","absolute");
-    this.css("top", Math.max(0, (($(window).height() - $(this).outerHeight()) / 2) + 
-        $(window).scrollTop()) + "px");
-    //    this.css("left", Math.max(0, (($(window).width() - $(this).outerWidth()) / 2) + 
-    //        $(window).scrollLeft()) + "px");    
-    return this;
-}
-$.validator.addMethod(
-    "regex",
-    function(value, element, regexp) {
-        var re = new RegExp(regexp);
-        console.log(re.test(value))
-        return this.optional(element) || re.test(value);
-    },
-    "Please check your input."
-    );
-        
-$.validator.addMethod(
-    'in_array',
-    
-    function(value, element, array) {
-        return  (array.indexOf(value) > -1);
-    },
-    "Please check your input."
-    );
-        
-$.fn.shake = function(intShakes, intDistance, intDuration) {
-    this.each(function() {
-        $(this).css("position","relative"); 
-        for (var x=1; x<=intShakes; x++) {
-            $(this).animate({
-                left:(intDistance*-1)
-            }, (((intDuration/intShakes)/4)))
-            .animate({
-                left:intDistance
-            }, ((intDuration/intShakes)/2))
-            .animate({
-                left:0
-            }, (((intDuration/intShakes)/4)));
-        }
-    });
-    return this;
-};
+
         
 
 var Alohamora = {
     baseURL: 'http://localhost/alohamora/',
-    //Production baseURL: 'http://192.168.1.10/rigel/',   
     participants : {},
     schools : {},
     textboxes: $('#txtFirstName, #txtLastName, #txtEmail, #txtCellphone, #txtSchool'),
-    loginText : '',
+    printText : '',
     logoutText : '',
     confirmText : '',
     init : function(){
-        UI.prepare();
-        AJAX.setup();
-        AJAX.getParticipants();
-        AJAX.getSchools();
+        $('#chalkboard').shake(2,10,150);
         
-        Alohamora.loginText = AJAX.getChalkboard('login', UI.loadLogin);
-        Alohamora.confirmText = AJAX.getChalkboard('confirm', UI.loadConfirm);   
-        Alohamora.logoutText = AJAX.getChalkboard('logout', UI.loadLogout);
+        $('#link-home, #link-print, #link-spreadsheet').on('click', function(){
+            $('li.active').removeClass('active');
+            $(this).parent().addClass('active');
+            UI.loadPrint();
+        });
         
-        $('#showLogin').on('click', function(){
-            UI.loadLogin();
-        });        
-        $('#showLogout').on('click', function(){
-            UI.loadLogout();            
-        });       
+        //        UI.prepare();
+        //        AJAX.setup();
+        //        AJAX.getParticipants();
+        //        AJAX.getSchools();
+        //        
+        Alohamora.printText = AJAX.getChalkboard('print');
+        
+        
+        
+//        alert(Alohamora.printText);
+    //        Alohamora.confirmText = AJAX.getChalkboard('confirm', UI.loadConfirm);   
+    //        Alohamora.logoutText = AJAX.getChalkboard('logout', UI.loadLogout);
+    //        
+    //        $('#showLogin').on('click', function(){
+    //            UI.loadLogin();
+    //        });        
+    //        $('#showLogout').on('click', function(){
+    //            UI.loadLogout();            
+    //        });       
     }
 };
 
@@ -94,6 +62,24 @@ var UI = {
             }, 2000)
         }   
         
+        
+    },
+    loadPrint: function(){
+        $('#chalkboard').children().fadeOut(1000, function(){
+            $('#chalkboard').empty().append(Alohamora.printText).fadeIn(1000);
+            
+            $('#btnPrint').on('click', function(){AJAX.print()});
+            
+            
+            
+            
+            
+            
+            }); 
+            
+            
+            
+            
         
     },
     loadLogin: function(data){                        
@@ -167,6 +153,15 @@ var AJAX = {
                 console.log("responseText: "+xhr.responseText);
             }            
         });
+    },
+    print : function(){
+        $.ajax({
+            url : Alohamora.baseURL + 'report',
+            success: function(data){
+                alert(data);
+            }
+        });
+        
     },
     getChalkboard : function(controller, callback){
         var template = '';
