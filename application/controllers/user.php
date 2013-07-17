@@ -23,7 +23,11 @@ class User extends MY_Controller {
     }
 
     public function index() {
-        echo $this->user_model->get();
+        if ($this->input->is_ajax_request()) {
+            echo toJSON($this->user_model->get());
+        } else {
+            return $this->user_model->get();
+        }
     }
 
     public function add() {

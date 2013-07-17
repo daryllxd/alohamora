@@ -16,27 +16,32 @@
 if (!defined('BASEPATH'))
     exit('No direct script access allowed');
 
-class User_model extends CI_Model {
+class User_model extends MY_Model {
 
     public function __construct() {
         parent::__construct();
-        $this->load->database();
     }
 
+    /**
+     * 
+     * @return array Associative array of associative arrays.
+     */
     public function get() {
-        $users = $this->db->get('users');
+        $users = $this->db->select('*')->from('users')->
+                join('schools', 'schools.school_id = users.school_id')->
+                get();
 
-        foreach ($users->result() as $row) {
+        foreach ($users->result_array() as $row) {
             $rows[] = $row;
         }
 
-        return json_encode($rows, 1);
+        return $rows;
     }
 
     public function add($user) {
         if ($this->isOldUser($user['user_id'])) {
             $this->db->trans_start();
-            
+
             $this->edit($user);
 
             $transaction = array(
@@ -62,7 +67,7 @@ class User_model extends CI_Model {
 
             $this->db->insert('users', $user);
             $insert_id = $this->db->insert_id();
-            
+
             $transaction = array(
                 'user_id' => $insert_id,
                 'transaction_date' => date('Y-m-d H:i:s')

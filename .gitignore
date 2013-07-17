@@ -2,5 +2,5 @@
 .swp
 application/cache
 application/logs
-application/config/database.php
 nbproject
+/assets/~$dump.xlsx

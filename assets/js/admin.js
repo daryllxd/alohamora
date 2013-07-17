@@ -1,8 +1,5 @@
 "use strict";
 
-
-        
-
 var Alohamora = {
     baseURL: 'http://localhost/alohamora/',
     participants : {},
@@ -158,7 +155,8 @@ var AJAX = {
         $.ajax({
             url : Alohamora.baseURL + 'report',
             success: function(data){
-                alert(data);
+                window.open(Alohamora.baseURL + 'assets/doc.pdf');
+//                alert(data);
             }
         });
         
