@@ -23,6 +23,7 @@ class School extends MY_Controller {
     }
 
     public function index() {
+        echo AUTHOR;
         echo $this->school_model->get();
     }
 

@@ -36,7 +36,18 @@ define('FOPEN_READ_WRITE_CREATE',				'a+b');
 define('FOPEN_WRITE_CREATE_STRICT',				'xb');
 define('FOPEN_READ_WRITE_CREATE_STRICT',		'x+b');
 
+/*
+|--------------------------------------------------------------------------
+| R&D Constants
+|--------------------------------------------------------------------------
+|
+| Modify these if you need to change the names
+|
+*/
+
 define('DATABASE_NAME', 'alohamora');
+
+
 
 
 /* End of file constants.php */

@@ -23,7 +23,7 @@ class Report extends MY_Controller {
     }
 
     public function index() {
-        $this->report_model->report();
+        $this->report_model->report('generateAttendance');
 
         $file = 'assets/doc.pdf'; // file to be downloaded
         header("Expires: 0");

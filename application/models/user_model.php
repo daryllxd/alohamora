@@ -39,7 +39,7 @@ class User_model extends MY_Model {
     }
 
     public function add($user) {
-        if ($this->isOldUser($user['user_id'])) {
+        if ($this->is_old_user($user['user_id'])) {
             $this->db->trans_start();
 
             $this->edit($user);
@@ -52,7 +52,7 @@ class User_model extends MY_Model {
             $this->db->insert('transactions', $transaction);
             $this->db->trans_complete();
 
-            return $this->isOldUser($user['user_id']);
+            return $this->is_old_user($user['user_id']);
         } else {
             $this->db->trans_start();
 
@@ -99,7 +99,7 @@ class User_model extends MY_Model {
         return $user['user_id'];
     }
 
-    private function isOldUser($user_id = 0) {
+    private function is_old_user($user_id = 0) {
         return $this->db->get_where('users', array('user_id' => $user_id))->num_rows() > 0;
     }
 

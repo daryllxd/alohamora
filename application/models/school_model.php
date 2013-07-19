@@ -16,11 +16,10 @@
 if (!defined('BASEPATH'))
     exit('No direct script access allowed');
 
-class School_model extends CI_Model {
+class School_model extends MY_Model {
 
     public function __construct() {
         parent::__construct();
-        $this->load->database();
     }
 
     public function get() {
@@ -28,6 +27,7 @@ class School_model extends CI_Model {
 
         foreach ($users->result() as $row) {
             $rows[] = $row;
+            
         }
 
         return json_encode($rows, 1);
